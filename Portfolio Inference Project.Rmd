@@ -1,0 +1,87 @@
+---
+title: "Has Adult Smoking Been Decreasing Over The Years In The United States?"
+author: "Cesar Corral"
+date: "2025-08-13"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+## Causal Analysis: Interrupted Time Series (ITS)
+
+To assess whether a specific event — the **2009 federal tobacco tax increase** — had a causal impact on adult smoking rates, we applied an Interrupted Time Series (ITS) model. This method allows us to isolate both the **immediate level change** and **change in trend** following the policy.
+
+We modeled per capita cigarette consumption (`Total_Per_Million`) using:
+
+- `time`: continuous time since 2000
+- `intervention`: binary variable marking years after 2009
+- `post_time`: time since intervention began
+
+```{r}
+smoking_data <- read.csv("~/cleaned_smoking_data.csv")
+head(smoking_data,7)
+```
+
+```{r}
+tail(smoking_data,7)
+```
+
+```{r}
+library(ggplot2)
+cigs <- subset(smoking_data, Submeasure == "Cigarette Removals")
+
+#Create ITS Variables
+cigs$time <- cigs$Year - min(cigs$Year)  # time since 2000
+cigs$intervention <- ifelse(cigs$Year >= 2009, 1, 0)  # 2009 tax increase
+cigs$post_time <- ifelse(cigs$Year >= 2009, cigs$time - (2009 - 2000), 0)  # years since intervention
+```
+
+
+## Interrupted Time Series Model
+```{r}
+its_model <- lm(Total_Per_Million ~ time + intervention + post_time, data = cigs)
+summary(its_model)
+```
+
+## Trend & ITS Model Visualization
+```{r}
+cigs$predicted <- predict(its_model)
+
+ggplot(cigs, aes(x = Year, y = Total_Per_Million)) +
+  geom_line(color = "steelblue", size = 1.2) +
+  geom_line(aes(y = predicted), color = "darkred", linetype = "dashed", size = 1) +
+  geom_vline(xintercept = 2009, linetype = "dotted", color = "black", size = 1) +
+  labs(title = "Interrupted Time Series: Per Capita Cigarette Consumption (2000–2023)",
+       subtitle = "Dashed line = model prediction | Dotted line = 2009 policy intervention",
+       x = "Year",
+       y = "Cigarette Consumption (Total Per Million)") +
+  theme_minimal()
+```
+
+The results from the Interrupted Time Series model suggest a causal relationship between the 2009 federal tobacco tax increase and adult cigarette consumption in the United States.
+
+- There was a strong declining trend in smoking from 2000 to 2008.
+
+- In 2009, there was a significant and immediate drop in cigarette consumption — suggesting a policy effect.
+
+- However, the post-policy trend slowed down slightly, indicating that while the tax caused an initial drop, the rate of decline wasn’t as steep in the following years.
+
+- Overall, the analysis supports the conclusion that the 2009 tax increase had a substantial immediate effect on reducing adult smoking, although long-term behavior change may have plateaued somewhat.
+
+## Conclusion and Next Steps
+
+Using national-level data from 2000 to 2023, this study found a strong downward trend in per capita cigarette consumption, particularly around the time of the 2009 federal tobacco tax increase. The use of Interrupted Time Series (ITS) analysis allowed us to assess not just the long-term trend, but also the potential causal impact of this key policy intervention.
+
+- From 2000 to 2008, there was a statistically significant decline in adult smoking.
+
+- In 2009, a large and statistically significant drop occurred in per capita cigarette consumption, coinciding with the tax hike.
+
+- Post-2009, the rate of decline in smoking slowed slightly, though the overall consumption continued to decrease.
+
+- These results suggest that increasing tobacco taxes is an effective tool for reducing adult smoking.
+
+- Future interventions may benefit from combining price increases with education and cessation support, especially to sustain long-term behavior change.
