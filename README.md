@@ -6,3 +6,4 @@ This portfolio shows the data analysis, data science, and machine learning proje
 2. [Term Deposit Marketing](https://github.com/CesarC97/k4qNk8QGRmSRj8Dq)
 3. [Marketing Data Analysis](https://github.com/CesarC97/MKD1587hJBhbl)
 4. [Airplane-Wildlife Collisions 2001-2015](https://public.tableau.com/app/profile/cesar.corral/viz/PortfolioProject1-Cesar/Dashboard1)
+5. [Has Adult Smoking Been Decreasing Over The Years In The United States?](https://github.com/CesarC97/smoking-trends-causal-inference/tree/main) 
